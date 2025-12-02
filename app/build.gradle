@@ -22,7 +22,7 @@ android {
 		minSdk = 23
 		targetSdk = 36
 		versionCode = 1033
-		versionName = '9.4.1'
+		versionName = (project.hasProperty('versionName') ? project.property('versionName') : '9.4.1').toString()
 		generatedDensities = []
 		testInstrumentationRunner 'org.koitharu.kotatsu.HiltTestRunner'
 		ksp {
