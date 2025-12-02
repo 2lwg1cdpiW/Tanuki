@@ -1,0 +1,75 @@
+name: Publish APK to Release
+
+on:
+  release:
+    types: [published]
+
+env:
+  APK_DIR: app/build/outputs/apk/release
+  APK_NAME: app-release.apk
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Restore Keystore from secret
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release-key.jks
+          ls -lh release-key.jks
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+
+      - name: Determine release tag
+        id: tag
+        run: |
+          # Use existing release tag if present, otherwise generate YYYYMMDD
+          if [ -n "${GITHUB_REF##refs/tags/*}" ]; then
+            TAG_NAME=$(date +'%Y%m%d')
+          else
+            TAG_NAME="${GITHUB_REF##refs/tags/}"
+          fi
+          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
+          echo "TAG_NAME=$TAG_NAME"
+
+      - name: Build APK (Release)
+        run: ./gradlew assembleRelease -PversionName=${{ env.TAG_NAME }} -x test
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Ensure APK exists
+        run: |
+          APK_PATH=$(ls ${{ env.APK_DIR }}/*.apk | head -n1)
+          if [ -z "$APK_PATH" ]; then
+            echo "❌ No APK found in ${{ env.APK_DIR }}!"
+            exit 1
+          fi
+          echo "APK_PATH=$APK_PATH" >> $GITHUB_ENV
+          echo "APK_NAME=$(basename $APK_PATH)" >> $GITHUB_ENV
+
+      - name: Upload APK to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG_NAME }}
+          name: "Release ${{ env.TAG_NAME }}"
+          body: "Automated APK build for tag ${{ env.TAG_NAME }}"
+          files: ${{ env.APK_PATH }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
