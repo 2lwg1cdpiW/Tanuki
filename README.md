@@ -1,5 +1,5 @@
 > [!IMPORTANT]
-> this is a modified version of kotatsu
+> this is a modified version of kotatsu 2025
 
 ---
 
