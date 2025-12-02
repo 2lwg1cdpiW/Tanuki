@@ -1,6 +1,7 @@
 name: Publish APK to Release
 
 on:
+  workflow_call:
   release:
     types: [published]
 
