@@ -70,7 +70,7 @@ class AboutSettingsFragment : BasePreferenceFragment(R.string.about) {
 				true
 			}
 
-			
+			<!-- This is a comment -->
 
 			else -> super.onPreferenceTreeClick(preference)
 		}
