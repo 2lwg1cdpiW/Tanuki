@@ -438,7 +438,7 @@ class ReaderActivity :
     }
 
     override fun openMenu() {
-        if (support.FragmentManager.IsStateSaved) {
+        if (supportFragmentManager.isStateSaved) {
 	        return
         }
         viewModel.saveCurrentState(readerManager.currentReader?.getCurrentState())
