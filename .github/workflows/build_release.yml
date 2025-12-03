@@ -35,6 +35,7 @@ jobs:
           ls -lh release-key.jks
           file release-key.jks || true
           hexdump -C release-key.jks | head -n 20 || true
+
           if keytool -list -v -keystore release-key.jks -storepass "${KEYSTORE_PASSWORD}" >/dev/null 2>&1; then
             echo "Keystore appears to be valid JKS"
           elif keytool -list -v -storetype PKCS12 -keystore release-key.jks -storepass "${KEYSTORE_PASSWORD}" >/dev/null 2>&1; then
@@ -50,11 +51,10 @@ jobs:
       - name: Determine release tag
         id: tag
         run: |
-          # Use existing release tag if present, otherwise generate YYYYMMDD
-          if [ -n "${GITHUB_REF##refs/tags/*}" ]; then
-            TAG_NAME=$(date +'%Y%m%d')
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            TAG_NAME="${GITHUB_REF#refs/tags/}"
           else
-            TAG_NAME="${GITHUB_REF##refs/tags/}"
+            TAG_NAME=$(date +'%Y%m%d')
           fi
           echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
           echo "TAG_NAME=$TAG_NAME"
