@@ -27,12 +27,26 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Restore Keystore from secret
+      - name: Restore Keystore from secret and validate
         run: |
+          echo "Restoring keystore from secret..."
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release-key.jks
+          echo "Keystore file size:"
           ls -lh release-key.jks
+          file release-key.jks || true
+          hexdump -C release-key.jks | head -n 20 || true
+          # try listing as both types, capture output
+          if keytool -list -v -keystore release-key.jks -storepass "${KEYSTORE_PASSWORD}" >/dev/null 2>&1; then
+            echo "Keystore appears to be valid JKS"
+          elif keytool -list -v -storetype PKCS12 -keystore release-key.jks -storepass "${KEYSTORE_PASSWORD}" >/dev/null 2>&1; then
+            echo "Keystore appears to be PKCS12"
+          else
+            echo "ERROR: Keystore could not be parsed. This usually means KEYSTORE_BASE64 is empty/corrupted or the password is wrong." >&2
+            exit 1
+          fi
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 
       - name: Determine release tag
         id: tag
