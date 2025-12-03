@@ -1,21 +1,7 @@
-
-name: Publish APK to Release
+name: Build and Release APK
 
 on:
-  workflow_call:
-    inputs:
-      KEYSTORE_BASE64:
-        required: true
-        type: string
-      KEYSTORE_PASSWORD:
-        required: true
-        type: string
-      KEY_ALIAS:
-        required: true
-        type: string
-      KEY_PASSWORD:
-        required: true
-        type: string
+  workflow_dispatch:
 
 env:
   APK_DIR: app/build/outputs/apk/release
@@ -39,21 +25,24 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Restore Keystore from secret and validate
+      - name: Restore Keystore from secret
         run: |
-          echo "Restoring keystore from secret..."
-          printf "%s" "${{ inputs.KEYSTORE_BASE64 }}" | base64 --decode > release-key.jks
+          echo "Restoring keystore..."
+          printf "%s" "${KEYSTORE_BASE64}" | base64 --decode > release-key.jks
           echo "Keystore file size:"
           ls -lh release-key.jks
           file release-key.jks || true
           hexdump -C release-key.jks | head -n 20 || true
 
-          if keytool -list -v -keystore release-key.jks -storepass "${{ inputs.KEYSTORE_PASSWORD }}" >/dev/null 2>&1; then
-            echo "Keystore appears to be valid JKS"
+          if keytool -list -v -keystore release-key.jks -storepass "${KEYSTORE_PASSWORD}" >/dev/null 2>&1; then
+            echo "Keystore appears valid"
           else
-            echo "ERROR: Keystore could not be parsed. This usually means KEYSTORE_BASE64 is empty/corrupted or the password is wrong." >&2
+            echo "ERROR: Keystore could not be parsed or password is wrong" >&2
             exit 1
           fi
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 
       - name: Determine release tag
         id: tag
@@ -64,14 +53,14 @@ jobs:
             TAG_NAME=$(date +'%Y%m%d')
           fi
           echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
-          echo "TAG_NAME=$TAG_NAME"
+          echo "Using release tag: $TAG_NAME"
 
       - name: Build APK (Release)
         run: ./gradlew assembleRelease -PversionName=${{ env.TAG_NAME }} -x test
         env:
-          KEYSTORE_PASSWORD: ${{ inputs.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ inputs.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ inputs.KEY_PASSWORD }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
       - name: Ensure APK exists
         run: |
