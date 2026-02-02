@@ -1,4 +1,4 @@
-name: Build and Release APKs
+name: Build APKs
 
 on:
   workflow_dispatch:
@@ -8,11 +8,10 @@ permissions:
   packages: write
 
 env:
-  APK_DIR_RELEASE: app/build/outputs/apk/release
-  APK_DIR_DEBUG: app/build/outputs/apk/debug
+  APK_DIR: app/build/outputs/apk
 
 jobs:
-  build-and-publish:
+  build-all-apks:
     runs-on: ubuntu-latest
 
     steps:
@@ -29,6 +28,12 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Restore Keystore from secret
+        run: |
+          printf "%s" "${KEYSTORE_BASE64}" | base64 --decode > release-key.jks
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+
       - name: Determine release tag
         id: tag
         run: |
@@ -38,30 +43,35 @@ jobs:
             TAG_NAME=$(date +'%Y%m%d')
           fi
           echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
-          echo "Using base tag: $TAG_NAME"
 
-      - name: Build Release APK
-        run: ./gradlew assembleRelease -PversionName=${{ env.TAG_NAME }} -x test
-
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug -PversionName=${{ env.TAG_NAME }} -x test
-
-      - name: Upload Release APK
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: "${{ env.TAG_NAME }}-release"
-          name: "Release APK ${{ env.TAG_NAME }}"
-          body: "Automated Release APK build for tag ${{ env.TAG_NAME }}"
-          files: ${{ env.APK_DIR_RELEASE }}/*.apk
+      - name: Build All Signed APKs
+        run: |
+          ./gradlew assembleDebug \
+            assembleRelease \
+            assembleNightly \
+            -PversionName=${{ env.TAG_NAME }} \
+            -Pandroid.injected.signing.store.file=release-key.jks \
+            -Pandroid.injected.signing.store.password=${KEYSTORE_PASSWORD} \
+            -Pandroid.injected.signing.key.alias=${KEY_ALIAS} \
+            -Pandroid.injected.signing.key.password=${KEY_PASSWORD} \
+            -x test
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
-      - name: Upload Debug APK
+      - name: Collect APK paths
+        run: |
+          find ${{ env.APK_DIR }} -name "*.apk" > apk-list.txt
+          cat apk-list.txt
+          echo "APK_LIST=$(cat apk-list.txt | tr '\n' ' ')" >> $GITHUB_ENV
+
+      - name: Upload All APKs to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: "${{ env.TAG_NAME }}-debug"
-          name: "Debug APK ${{ env.TAG_NAME }}"
-          body: "Automated Debug APK build for tag ${{ env.TAG_NAME }}"
-          files: ${{ env.APK_DIR_DEBUG }}/*.apk
+          tag_name: ${{ env.TAG_NAME }}
+          name: "Release ${{ env.TAG_NAME }}"
+          body: "Automated build: debug, release, and nightly APKs (all signed)"
+          files: ${{ env.APK_LIST }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
