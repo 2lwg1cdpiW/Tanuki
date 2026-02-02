@@ -424,9 +424,8 @@ class DetailsActivity :
 			textViewNsfw18.isVisible = manga.contentRating == ContentRating.ADULT
 			textViewDescription.text = details.description.ifNullOrEmpty { getString(R.string.no_description) }
 			
-			// FIXED: Added safe calls ?. and changed logic to show "Unknown" instead of hiding
-			textViewAuthorLabel?.isVisible = true
-			textViewAuthor?.text = manga.getAuthorsString() ?: getString(R.string.no_author).ifNullOrEmpty { "Unknown" }
+textViewAuthorLabel?.isVisible = true
+textViewAuthor?.text = manga.getAuthorsString() ?: "Unknown"
 		}
 		with(infoBinding) {
 			val translation = details.getLocale()
