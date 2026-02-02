@@ -1,4 +1,4 @@
-name: Build and Release APK
+name: Build and Release APKs
 
 on:
   workflow_dispatch:
@@ -8,8 +8,8 @@ permissions:
   packages: write
 
 env:
-  APK_DIR: app/build/outputs/apk/release
-  APK_NAME: app-release.apk
+  APK_DIR_RELEASE: app/build/outputs/apk/release
+  APK_DIR_DEBUG: app/build/outputs/apk/debug
 
 jobs:
   build-and-publish:
@@ -29,25 +29,6 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Restore Keystore from secret
-        run: |
-          echo "Restoring keystore..."
-          printf "%s" "${KEYSTORE_BASE64}" | base64 --decode > release-key.jks
-          echo "Keystore file size:"
-          ls -lh release-key.jks
-          file release-key.jks || true
-          hexdump -C release-key.jks | head -n 20 || true
-
-          if keytool -list -v -keystore release-key.jks -storepass "${KEYSTORE_PASSWORD}" >/dev/null 2>&1; then
-            echo "Keystore appears valid"
-          else
-            echo "ERROR: Keystore could not be parsed or password is wrong" >&2
-            exit 1
-          fi
-        env:
-          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-
       - name: Determine release tag
         id: tag
         run: |
@@ -57,31 +38,30 @@ jobs:
             TAG_NAME=$(date +'%Y%m%d')
           fi
           echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
-          echo "Using release tag: $TAG_NAME"
+          echo "Using base tag: $TAG_NAME"
 
-      - name: Build APK (Release)
+      - name: Build Release APK
         run: ./gradlew assembleRelease -PversionName=${{ env.TAG_NAME }} -x test
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
-      - name: Ensure APK exists
-        run: |
-          APK_PATH=$(ls ${{ env.APK_DIR }}/*.apk | head -n1)
-          if [ -z "$APK_PATH" ]; then
-            echo "❌ No APK found in ${{ env.APK_DIR }}!"
-            exit 1
-          fi
-          echo "APK_PATH=$APK_PATH" >> $GITHUB_ENV
-          echo "APK_NAME=$(basename $APK_PATH)" >> $GITHUB_ENV
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug -PversionName=${{ env.TAG_NAME }} -x test
 
-      - name: Upload APK to GitHub Release
+      - name: Upload Release APK
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.TAG_NAME }}
-          name: "Release ${{ env.TAG_NAME }}"
-          body: "Automated APK build for tag ${{ env.TAG_NAME }}"
-          files: ${{ env.APK_PATH }}
+          tag_name: "${{ env.TAG_NAME }}-release"
+          name: "Release APK ${{ env.TAG_NAME }}"
+          body: "Automated Release APK build for tag ${{ env.TAG_NAME }}"
+          files: ${{ env.APK_DIR_RELEASE }}/*.apk
         env:
-          GITHUB_TOKEN: ${{ secrets.TOOOK }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Debug APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "${{ env.TAG_NAME }}-debug"
+          name: "Debug APK ${{ env.TAG_NAME }}"
+          body: "Automated Debug APK build for tag ${{ env.TAG_NAME }}"
+          files: ${{ env.APK_DIR_DEBUG }}/*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
