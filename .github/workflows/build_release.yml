@@ -40,14 +40,12 @@ jobs:
           echo "Using release tag: $TAG_NAME"
 
       - name: Build All APKs (Debug, Release, Nightly)
-        run: |
-          ./gradlew assembleDebug assembleRelease assembleNightly -PversionName=${{ env.TAG_NAME }} -x test
+        run: ./gradlew assembleDebug assembleRelease assembleNightly -PversionName=${{ env.TAG_NAME }} -x test
 
       - name: Collect APK paths
         run: |
-          find ${{ env.APK_DIR }} -name "*.apk" > apk-list.txt
-          cat apk-list.txt
-          echo "APK_LIST=$(cat apk-list.txt | tr '\n' ' ')" >> $GITHUB_ENV
+          echo "APK_LIST=$(find ${{ env.APK_DIR }} -name '*.apk' | tr '\n' ' ')" >> $GITHUB_ENV
+          echo "Found APKs: ${{ env.APK_LIST }}"
 
       - name: Upload All APKs to GitHub Release
         uses: softprops/action-gh-release@v2
@@ -55,6 +53,10 @@ jobs:
           tag_name: ${{ env.TAG_NAME }}
           name: "Release ${{ env.TAG_NAME }}"
           body: "Automated build: debug, release, and nightly APKs (all signed)"
-          files: ${{ env.APK_LIST }}
+          # Use wildcard patterns per folder to avoid the single string issue
+          files: |
+            app/build/outputs/apk/debug/*.apk
+            app/build/outputs/apk/release/*.apk
+            app/build/outputs/apk/nightly/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
