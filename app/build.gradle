@@ -22,7 +22,7 @@ android {
 		minSdk = 23
 		targetSdk = 36
 		versionCode = 1033
-		versionName = (project.hasProperty('versionName') ? project.property('versionName') : '9.4.1').toString()
+		versionName = '9.4.1'
 		generatedDensities = []
 		testInstrumentationRunner 'org.koitharu.kotatsu.HiltTestRunner'
 		ksp {
@@ -39,23 +39,6 @@ android {
 		}
 		resValue 'string', 'tg_backup_bot_token', localProperties.getProperty('tg_backup_bot_token', '')
 	}
-
-    signingConfigs {
-      release {
-         def keyStoreFile = file("../release-key.jks")
-         def hasValidKeyStore = keyStoreFile.exists() && 
-                                System.getenv("KEYSTORE_PASSWORD") != null &&
-                                System.getenv("KEY_ALIAS") != null &&
-                                System.getenv("KEY_PASSWORD") != null
-         
-         if (hasValidKeyStore) {
-            storeFile keyStoreFile
-            storePassword System.getenv("KEYSTORE_PASSWORD")
-            keyAlias System.getenv("KEY_ALIAS")
-            keyPassword System.getenv("KEY_PASSWORD")
-         }
-      }
-    }
 	buildTypes {
 		debug {
 			applicationIdSuffix = '.debug'
@@ -64,15 +47,6 @@ android {
 			minifyEnabled true
 			shrinkResources true
 			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-			
-			def keyStoreFile = file("../release-key.jks")
-			def hasValidKeyStore = keyStoreFile.exists() && 
-			                        System.getenv("KEYSTORE_PASSWORD") != null &&
-			                        System.getenv("KEY_ALIAS") != null &&
-			                        System.getenv("KEY_PASSWORD") != null
-			if (hasValidKeyStore) {
-				signingConfig signingConfigs.release
-			}
 		}
 		nightly {
 			initWith release
@@ -84,9 +58,6 @@ android {
 		buildConfig true
 	}
 	packagingOptions {
-		jniLibs {
-			useLegacyPackaging true
-		}
 		resources {
 			excludes += [
 				'META-INF/README.md',
@@ -152,9 +123,9 @@ dependencies {
 		parsersVersion = System.getProperty('parsersVersionOverride')
 	}
 	//noinspection UseTomlInstead
-	implementation("com.github.2lwg1cdpiW:kotatsu-parsers:0.6.8") {
+	implementation("com.github.KotatsuApp:kotatsu-parsers:$parsersVersion") {
 		exclude group: 'org.json', module: 'json'
-    }
+	}
 
 	coreLibraryDesugaring libs.desugar.jdk.libs
 	implementation libs.kotlin.stdlib
