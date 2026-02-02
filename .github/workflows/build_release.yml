@@ -3,6 +3,10 @@ name: Build and Release APK
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+  packages: write
+
 env:
   APK_DIR: app/build/outputs/apk/release
   APK_NAME: app-release.apk
