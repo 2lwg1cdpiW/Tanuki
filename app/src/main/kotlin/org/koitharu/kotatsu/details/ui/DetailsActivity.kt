@@ -158,8 +158,8 @@ class DetailsActivity :
 		viewBinding.swipeRefreshLayout.setOnRefreshListener(this)
 		viewBinding.textViewDescription.viewTreeObserver.addOnDrawListener(this)
 		
-		// UPDATED: Use viewBinding instead of infoBinding for Author
-		viewBinding.textViewAuthor.movementMethod = LinkMovementMethodCompat.getInstance()
+		// FIXED: Added safe call ?. to fix compilation error
+		viewBinding.textViewAuthor?.movementMethod = LinkMovementMethodCompat.getInstance()
 		
 		viewBinding.textViewDescription.movementMethod = LinkMovementMethodCompat.getInstance()
 		viewBinding.chipsTags.onChipClickListener = this
@@ -424,9 +424,9 @@ class DetailsActivity :
 			textViewNsfw18.isVisible = manga.contentRating == ContentRating.ADULT
 			textViewDescription.text = details.description.ifNullOrEmpty { getString(R.string.no_description) }
 			
-			// UPDATED: Bind author here in viewBinding
-			textViewAuthor.textAndVisible = manga.getAuthorsString()
-			textViewAuthorLabel.isVisible = textViewAuthor.isVisible
+			// FIXED: Added safe calls ?. and changed logic to show "Unknown" instead of hiding
+			textViewAuthorLabel?.isVisible = true
+			textViewAuthor?.text = manga.getAuthorsString() ?: getString(R.string.no_author).ifNullOrEmpty { "Unknown" }
 		}
 		with(infoBinding) {
 			val translation = details.getLocale()
@@ -438,8 +438,6 @@ class DetailsActivity :
 				TextDrawable.compound(infoBinding.textViewTranslation, it)
 			}
 			infoBinding.textViewTranslationLabel.isVisible = infoBinding.textViewTranslation.isVisible
-			
-			// REMOVED: textViewAuthor logic from here (now in viewBinding block above)
 			
 			if (manga.hasRating) {
 				ratingBarRating.rating = manga.rating * ratingBarRating.numStars
