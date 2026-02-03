@@ -1,0 +1,31 @@
+package org.tanukis.tanuki.explore.ui.adapter
+
+import org.tanukis.tanuki.core.ui.BaseListAdapter
+import org.tanukis.tanuki.core.ui.list.OnListItemClickListener
+import org.tanukis.tanuki.explore.ui.model.MangaSourceItem
+import org.tanukis.tanuki.list.ui.adapter.ListItemType
+import org.tanukis.tanuki.list.ui.adapter.emptyHintAD
+import org.tanukis.tanuki.list.ui.adapter.listHeaderAD
+import org.tanukis.tanuki.list.ui.adapter.loadingStateAD
+import org.tanukis.tanuki.list.ui.model.ListModel
+import org.tanukis.tanuki.parsers.model.Manga
+
+class ExploreAdapter(
+	listener: ExploreListEventListener,
+	clickListener: OnListItemClickListener<MangaSourceItem>,
+	mangaClickListener: OnListItemClickListener<Manga>,
+) : BaseListAdapter<ListModel>() {
+
+	init {
+		addDelegate(ListItemType.EXPLORE_BUTTONS, exploreButtonsAD(listener))
+		addDelegate(
+			ListItemType.EXPLORE_SUGGESTION,
+			exploreRecommendationItemAD(mangaClickListener),
+		)
+		addDelegate(ListItemType.HEADER, listHeaderAD(listener))
+		addDelegate(ListItemType.EXPLORE_SOURCE_LIST, exploreSourceListItemAD(clickListener))
+		addDelegate(ListItemType.EXPLORE_SOURCE_GRID, exploreSourceGridItemAD(clickListener))
+		addDelegate(ListItemType.HINT_EMPTY, emptyHintAD(listener))
+		addDelegate(ListItemType.STATE_LOADING, loadingStateAD())
+	}
+}

@@ -16,12 +16,12 @@
 -dontwarn com.google.j2objc.annotations.**
 -dontwarn coil3.PlatformContext
 
--keep class org.koitharu.kotatsu.settings.NotificationSettingsLegacyFragment
--keep class org.koitharu.kotatsu.settings.about.changelog.ChangelogFragment
+-keep class org.tanukis.tanuki.settings.NotificationSettingsLegacyFragment
+-keep class org.tanukis.tanuki.settings.about.changelog.ChangelogFragment
 
--keep class org.koitharu.kotatsu.core.exceptions.* { *; }
--keep class org.koitharu.kotatsu.core.prefs.ScreenshotsPolicy { *; }
--keep class org.koitharu.kotatsu.backups.ui.periodical.PeriodicalBackupSettingsFragment { *; }
+-keep class org.tanukis.tanuki.core.exceptions.* { *; }
+-keep class org.tanukis.tanuki.core.prefs.ScreenshotsPolicy { *; }
+-keep class org.tanukis.tanuki.backups.ui.periodical.PeriodicalBackupSettingsFragment { *; }
 -keep class org.jsoup.parser.Tag
 -keep class org.jsoup.internal.StringUtil
 
