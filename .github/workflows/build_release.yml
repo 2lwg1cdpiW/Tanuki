@@ -40,7 +40,7 @@ jobs:
           echo "Using release tag: $TAG_NAME"
 
       - name: Build All APKs (Debug, Release, Nightly)
-        run: ./gradlew assembleDebug assembleRelease assembleNightly -PversionName=${{ env.TAG_NAME }} -x test
+        run: ./gradlew assembleDebug assembleRelease -PversionName=${{ env.TAG_NAME }} -x test
 
       - name: Collect APK paths
         run: |
@@ -57,6 +57,6 @@ jobs:
           files: |
             app/build/outputs/apk/debug/*.apk
             app/build/outputs/apk/release/*.apk
-            app/build/outputs/apk/nightly/*.apk
+            
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
