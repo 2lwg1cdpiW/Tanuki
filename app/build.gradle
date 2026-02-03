@@ -122,14 +122,19 @@ android {
 		}
 	}
 	applicationVariants.configureEach { variant ->
-		if (variant.name == 'nightly') {
-			variant.outputs.each { output ->
-				def now = LocalDateTime.now()
-				output.versionCodeOverride = now.format("yyMMdd").toInteger()
-				output.versionNameOverride = 'N' + now.format("yyyyMMdd")
-			}
-		}
-	}
+        def now = LocalDateTime.now()
+        if (variant.name == 'legacy') {
+            variant.outputs.each { output ->
+                output.versionCodeOverride = now.format("yyMMdd").toInteger()
+                output.versionNameOverride = 'C' + now.format("yyMMdd")
+            }
+        } else if (variant.name == 'release') {
+            variant.outputs.each { output ->
+                output.versionCodeOverride = now.format("yyMMdd").toInteger()
+                output.versionNameOverride = 'P' + now.format("yyMMdd")
+            }
+        }
+    }
 }
 dependencies {
     def extsVersion = libs.versions.parsers.get()
@@ -209,7 +214,6 @@ dependencies {
     implementation libs.conscrypt.android
 
     debugImplementation libs.leakcanary.android
-    nightlyImplementation libs.leakcanary.android
     debugImplementation libs.workinspector
 
     testImplementation libs.junit
