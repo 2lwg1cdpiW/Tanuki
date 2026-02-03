@@ -2,4 +2,4 @@ package org.tanukis.tanuki
 
 import org.tanukis.tanuki.core.BaseApp
 
-class DokiApp : BaseApp()
+class Kotatsu : BaseApp()
