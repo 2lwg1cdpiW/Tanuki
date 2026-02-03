@@ -40,7 +40,7 @@ android {
 		resValue 'string', 'tg_backup_bot_token', localProperties.getProperty('tg_backup_bot_token', '')
 	}
 	signingConfigs {
-	    release {
+	    TanukiApp {
 	        storeFile file("balls.jks")
 	        storePassword "bigfuhahh69"
 	        keyAlias "ballsack"
@@ -51,19 +51,20 @@ android {
 	buildTypes {
 	    debug {
 	        applicationIdSuffix = '.debug'
-	        signingConfig signingConfigs.release
 	    }
 	    release {
 	        minifyEnabled true
 	        shrinkResources true
 	        proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-	        signingConfig signingConfigs.release
+	        signingConfig signingConfigs.TanukiApp
 	    }
-	    nightly {
-	        initWith release
-	        applicationIdSuffix = '.nightly'
-	        signingConfig signingConfigs.release
-	    }
+	    legacy {
+            applicationIdSuffix = '.legacy'
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.TanukiApp
+        }
 	}
 	buildFeatures {
 		viewBinding true
