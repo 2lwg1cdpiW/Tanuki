@@ -1,4 +1,4 @@
-package org.koitharu.kotatsu.core.network
+package org.tanukis.tanuki.core.network
 
 import okhttp3.Interceptor
 import okhttp3.Response
