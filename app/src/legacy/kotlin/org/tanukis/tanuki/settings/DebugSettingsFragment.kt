@@ -1,11 +1,11 @@
-package org.koitharu.kotatsu.settings
+package org.tanukis.tanuki.settings
 
 import android.os.Bundle
 import androidx.preference.Preference
 import leakcanary.LeakCanary
-import org.koitharu.kotatsu.R
-import org.koitharu.kotatsu.core.ui.BasePreferenceFragment
-import org.koitharu.kotatsu.settings.utils.SplitSwitchPreference
+import org.tanukis.tanuki.R
+import org.tanukis.tanuki.core.ui.BasePreferenceFragment
+import org.tanukis.tanuki.settings.utils.SplitSwitchPreference
 
 class DebugSettingsFragment : BasePreferenceFragment(R.string.debug), Preference.OnPreferenceClickListener {
 

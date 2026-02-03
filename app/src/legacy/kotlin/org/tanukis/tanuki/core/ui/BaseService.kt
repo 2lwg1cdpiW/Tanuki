@@ -1,4 +1,4 @@
-package org.koitharu.kotatsu.core.ui
+package org.tanukis.tanuki.core.ui
 
 import android.content.Context
 import androidx.core.content.ContextCompat

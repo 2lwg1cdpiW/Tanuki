@@ -1,4 +1,4 @@
-//app/src/main/kotlin/org/koitharu/kotatsu/details/ui/DetailsActivity.kt
+//app/src/main/kotlin/org/tanukis/tanuki/details/ui/DetailsActivity.kt
 
 package org.tanukis.tanuki.details.ui
 
