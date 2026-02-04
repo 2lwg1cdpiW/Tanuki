@@ -94,6 +94,7 @@ class ReaderActionsView @JvmOverloads constructor(
 		binding.buttonSave.initAction()
 		binding.buttonScreenRotation.initAction()
 		binding.buttonPagesThumbs.initAction()
+		binding.buttonComment.initAction()
 		binding.buttonTimer.initAction()
 		binding.buttonBookmark.initAction()
 		binding.slider.setLabelFormatter(PageLabelFormatter())
@@ -125,6 +126,7 @@ class ReaderActionsView @JvmOverloads constructor(
 			R.id.button_save -> listener?.onSavePageClick()
 			R.id.button_timer -> listener?.onScrollTimerClick(isLongClick = false)
 		R.id.button_pages_thumbs -> AppRouter.from(this)?.showChapterPagesSheet()
+		R.id.button_comment -> AppRouter.from(this)?.showCommentsSheet()
 		R.id.button_screen_rotation -> listener?.toggleScreenOrientation()
 		R.id.button_bookmark -> listener?.onBookmarkClick()
 		}

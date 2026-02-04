@@ -58,6 +58,7 @@ import org.tanukis.tanuki.core.util.ext.toUriOrNull
 import org.tanukis.tanuki.core.util.ext.withArgs
 import org.tanukis.tanuki.details.ui.DetailsActivity
 import org.tanukis.tanuki.details.ui.pager.ChaptersPagesSheet
+import org.tanukis.tanuki.details.ui.pager.CommentsSheet
 import org.tanukis.tanuki.details.ui.related.RelatedMangaActivity
 import org.tanukis.tanuki.details.ui.scrobbling.ScrobblingInfoSheet
 import org.tanukis.tanuki.download.ui.dialog.DownloadDialogFragment
@@ -512,6 +513,10 @@ class AppRouter private constructor(
 
     fun showChapterPagesSheet() {
         ChaptersPagesSheet().showDistinct()
+    }
+
+    fun showCommentsSheet() {
+        CommentsSheet().showDistinct()
     }
 
     fun showChapterPagesSheet(defaultTab: Int) {
