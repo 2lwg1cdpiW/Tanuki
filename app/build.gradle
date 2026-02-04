@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -91,9 +92,10 @@ android {
 		sourceCompatibility JavaVersion.VERSION_17
 		targetCompatibility JavaVersion.VERSION_17
 	}
-	kotlinOptions {
-		jvmTarget = "17"
-		freeCompilerArgs.addAll([
+	kotlin {
+		compilerOptions {
+			jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+			freeCompilerArgs.addAll([
             '-opt-in=kotlin.ExperimentalStdlibApi',
             '-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi',
             '-opt-in=kotlinx.coroutines.ExperimentalForInheritanceCoroutinesApi',
@@ -107,6 +109,7 @@ android {
             '-Xannotation-default-target=first-only',
             '-Xtype-enhancement-improvements-strict-mode'
         ])
+		}
 	}
 	room {
 		schemaDirectory "$projectDir/schemas"
