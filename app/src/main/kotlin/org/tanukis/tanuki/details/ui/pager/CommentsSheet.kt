@@ -53,8 +53,12 @@ class CommentsSheet : BaseAdaptiveSheet<SheetCommentsBinding>() {
 
     private fun findCurrentChapter(vm: ChaptersPagesViewModel): MangaChapter? {
         val details = vm.mangaDetails.value ?: return null
-        return detailsvm.manga.value ?: return null
-        return manga.allChapters.findById(chapId)
+        val chapterId = vm.readingState.value?.chapterId
+        return if (chapterId != null) {
+            details.allChapters.findById(chapterId)
+        } else {
+            details.allChapters.firstOrNull()
+        }
     }
 
     override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat = insets
