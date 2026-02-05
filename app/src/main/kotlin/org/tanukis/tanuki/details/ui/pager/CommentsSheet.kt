@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -52,8 +53,10 @@ class CommentsSheet : BaseAdaptiveSheet<SheetCommentsBinding>() {
     private fun findCurrentChapter(vm: ChaptersPagesViewModel): MangaChapter? {
         val chapId = vm.readingState.value?.chapterId ?: return null
         val manga = vm.manga.value ?: return null
-        return manga.allChapters.find { it.id == chapId }
+        return manga.allChapters.findById(chapId)
     }
+
+    override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat = insets
 
     private data class CommentItem(
         val id: Long,
@@ -190,8 +193,4 @@ class CommentsSheet : BaseAdaptiveSheet<SheetCommentsBinding>() {
     }
 
     private fun generateUid(s: String): Long = s.hashCode().toLong() and 0xffffffffL
-
-    companion object {
-        const val KEY_COMMENTS = "comments_list"
-    }
 }
