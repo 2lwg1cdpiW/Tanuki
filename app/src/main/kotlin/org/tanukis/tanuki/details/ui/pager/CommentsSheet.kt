@@ -22,6 +22,7 @@ import org.tanukis.tanuki.core.ui.sheet.BaseAdaptiveSheet
 import org.tanukis.tanuki.databinding.SheetCommentsBinding
 import org.tanukis.tanuki.details.ui.pager.ChaptersPagesViewModel
 import org.tanukis.tanuki.parsers.model.MangaChapter
+import org.tanukis.tanuki.parsers.util.findById
 
 @AndroidEntryPoint
 class CommentsSheet : BaseAdaptiveSheet<SheetCommentsBinding>() {
@@ -51,8 +52,8 @@ class CommentsSheet : BaseAdaptiveSheet<SheetCommentsBinding>() {
     }
 
     private fun findCurrentChapter(vm: ChaptersPagesViewModel): MangaChapter? {
-        val chapId = vm.readingState.value?.chapterId ?: return null
-        val manga = vm.manga.value ?: return null
+        val details = vm.mangaDetails.value ?: return null
+        return detailsvm.manga.value ?: return null
         return manga.allChapters.findById(chapId)
     }
 
